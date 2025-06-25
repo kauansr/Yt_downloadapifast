@@ -6,7 +6,7 @@ It allows users to input one or more YouTube URLs and download:
 - 🎥 Video files (highest available resolution)
 - 🎧 Audio files (converted to `.mp3`)
 
-All downloaded files are **temporarily stored on the server** and automatically deleted **after 10 minutes**.
+All downloaded files are **temporarily stored on the server** and automatically deleted.
 
 ---
 
