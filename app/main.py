@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI, BackgroundTasks, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import zipfile
@@ -34,11 +34,15 @@ async def post_vid(urls: Item, background_tasks: BackgroundTasks):
     for url in urls.urls_vid:
         queue.push(url)
 
-    for link in queue:
-        ytb = YouTube(link)
-        vid = ytb.streams.get_highest_resolution()
-        file_path = vid.download(output_path=temp_dir)
-        downloaded_files.append(file_path)
+    try:
+        for link in queue:
+            ytb = YouTube(link)
+            vid = ytb.streams.get_highest_resolution()
+            file_path = vid.download(output_path=temp_dir)
+            downloaded_files.append(file_path)
+    except Exception as e:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+        raise HTTPException(status_code=400, detail=f"Erro ao baixar vídeo: {e}")
 
     background_tasks.add_task(shutil.rmtree, temp_dir)
 
@@ -50,9 +54,13 @@ async def post_vid(urls: Item, background_tasks: BackgroundTasks):
         )
 
     zip_path = os.path.join(temp_dir, "videos.zip")
-    with zipfile.ZipFile(zip_path, "w") as zipf:
-        for file in downloaded_files:
-            zipf.write(file, arcname=os.path.basename(file))
+    try:
+        with zipfile.ZipFile(zip_path, "w") as zipf:
+            for file in downloaded_files:
+                zipf.write(file, arcname=os.path.basename(file))
+    except Exception as e:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+        raise HTTPException(status_code=500, detail=f"Erro ao criar zip: {e}")
 
     return FileResponse(zip_path, media_type="application/zip", filename="videos.zip")
 
@@ -69,15 +77,19 @@ async def post_audio(urls: Item, background_tasks: BackgroundTasks):
     for url in urls.urls_vid:
         queue.push(url)
 
-    for link in queue:
-        ytb = YouTube(link)
-        audio = ytb.streams.get_audio_only()
-        audio_file = audio.download(output_path=temp_dir)
+    try:
+        for link in queue:
+            ytb = YouTube(link)
+            audio = ytb.streams.get_audio_only()
+            audio_file = audio.download(output_path=temp_dir)
 
-        base, _ = os.path.splitext(audio_file)
-        mp3_file = base + ".mp3"
-        os.rename(audio_file, mp3_file)
-        downloaded_files.append(mp3_file)
+            base, _ = os.path.splitext(audio_file)
+            mp3_file = base + ".mp3"
+            os.rename(audio_file, mp3_file)
+            downloaded_files.append(mp3_file)
+    except Exception as e:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+        raise HTTPException(status_code=400, detail=f"Erro ao baixar áudio: {e}")
 
     background_tasks.add_task(shutil.rmtree, temp_dir)
 
@@ -89,9 +101,13 @@ async def post_audio(urls: Item, background_tasks: BackgroundTasks):
         )
 
     zip_path = os.path.join(temp_dir, "audios.zip")
-    with zipfile.ZipFile(zip_path, "w") as zipf:
-        for file in downloaded_files:
-            zipf.write(file, arcname=os.path.basename(file))
+    try:
+        with zipfile.ZipFile(zip_path, "w") as zipf:
+            for file in downloaded_files:
+                zipf.write(file, arcname=os.path.basename(file))
+    except Exception as e:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+        raise HTTPException(status_code=500, detail=f"Erro ao criar zip: {e}")
 
     return FileResponse(zip_path, media_type="application/zip", filename="audios.zip")
 
