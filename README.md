@@ -23,7 +23,6 @@ The frontend is built with **ReactJS**, providing a user-friendly interface to s
 - Downloads both videos and audio tracks
 - Converts audio streams to `.mp3`
 - Temporary file storage with automatic deletion
-- Clean JSON responses with downloadable links
 
 ---
 

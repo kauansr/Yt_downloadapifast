@@ -1,5 +1,6 @@
 from typing import Annotated
 from fastapi import FastAPI, BackgroundTasks
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import zipfile
 from pytubefix import YouTube
@@ -11,6 +12,14 @@ import os
 import shutil
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["POST"],
+    allow_headers=["POST"],
+)
 
 
 @app.post("/videos")
