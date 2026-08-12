@@ -13,11 +13,35 @@ export const downloadMedia = async (type, urlsArray) => {
     const blob = new Blob([response.data]);
 
 
-    const contentDisposition = response.headers['content-disposition'] || '';
+    const contentDisposition =
+  response.headers['content-disposition'] || '';
 
-    const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
-    
-    const filename = filenameMatch ? filenameMatch[1] : (urlsArray.length > 1 ? `${type}.zip` : `${type}.mp4`);
+let filename;
+
+if (urlsArray.length > 1) {
+  filename = `${type}.zip`;
+} else {
+  const filenameStarMatch = contentDisposition.match(
+    /filename\*=UTF-8''([^;]+)/i
+  );
+
+  const filenameMatch = contentDisposition.match(
+    /filename="([^"]+)"/i
+  );
+
+  if (filenameStarMatch) {
+    filename = decodeURIComponent(filenameStarMatch[1]);
+  } else if (filenameMatch) {
+    filename = filenameMatch[1];
+  } else {
+    filename = type === 'audios'
+      ? 'audio.mp3'
+      : 'video.mp4';
+  }
+}
+
+
+
 
     return { blob, filename };
 
