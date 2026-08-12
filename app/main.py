@@ -94,10 +94,11 @@ async def post_audio(urls: Item, background_tasks: BackgroundTasks):
     background_tasks.add_task(shutil.rmtree, temp_dir)
 
     if len(downloaded_files) == 1:
+        filemp3 = downloaded_files[0]
         return FileResponse(
-            downloaded_files[0],
+            filemp3,
             media_type="audio/mpeg",
-            filename=os.path.splitext(os.path.basename(file_path))[0] + ".mp3",
+            filename=os.path.splitext(os.path.basename(filemp3))[0] + ".mp3",
         )
 
     zip_path = os.path.join(temp_dir, "audios.zip")
