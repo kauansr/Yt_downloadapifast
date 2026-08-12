@@ -64,7 +64,7 @@ uvicorn main:app --reload
 
 ### 5. Setup frontend
 ```bash
-cd frontend
+cd youtube-downloader
 ```
 
 ### 6. Install frontend dependencies
