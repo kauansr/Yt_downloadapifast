@@ -97,7 +97,7 @@ async def post_audio(urls: Item, background_tasks: BackgroundTasks):
         return FileResponse(
             downloaded_files[0],
             media_type="audio/mpeg",
-            filename=os.path.basename(downloaded_files[0]),
+            filename=os.path.splitext(os.path.basename(file_path))[0] + ".mp3",
         )
 
     zip_path = os.path.join(temp_dir, "audios.zip")
